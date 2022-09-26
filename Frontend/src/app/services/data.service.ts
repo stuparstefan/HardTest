@@ -11,10 +11,13 @@ export class DataService {
 
   constructor(private http: HttpClient) {}
 
-  public uploadFile(file: any, taxPercentage: number): Observable<any> {
+  public uploadFile(file: any): Observable<any> {
     const formData = new FormData();
     formData.append('file', file, file.name);
-    formData.append('taxPercentage', taxPercentage.toString());
     return this.http.post(`${this.baseUrl}/data`, formData);
+  }
+
+  public get(taxPercentage: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/data?taxPercentage=${taxPercentage}`);
   }
 }

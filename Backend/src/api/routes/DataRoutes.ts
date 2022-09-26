@@ -5,6 +5,9 @@ import multer from 'multer';
 const upload = multer({ dest: './csv' });
 const router = Router();
 
-router.route('/').post(upload.single('file'), dataController.uploadFile);
+router
+  .route('/')
+  .get(dataController.get)
+  .post(upload.single('file'), dataController.uploadFile);
 
 export const dataRoutes = router;

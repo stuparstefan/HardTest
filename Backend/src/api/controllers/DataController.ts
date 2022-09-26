@@ -5,7 +5,6 @@ import { AppError } from '../../utils/exceptions/AppError';
 class DataController {
   public uploadFile(req: Request, res: Response, next: NextFunction) {
     const filePath = req.file?.path || '';
-    const taxPercentage = req.body?.taxPercentage || 0;
 
     if (!filePath) {
       next(
@@ -14,9 +13,22 @@ class DataController {
       return;
     }
     dataService
-      .uploadFile(filePath, taxPercentage)
-      .then((data) => {
-        res.status(200).json(data);
+      .uploadFile(filePath)
+      .then(() => {
+        res.status(204).json();
+      })
+      .catch((error: AppError | Error) => {
+        next(error);
+      });
+  }
+
+  public get(req: Request, res: Response, next: NextFunction) {
+    const taxPercentage = Number(req.query['taxPercentage']);
+
+    dataService
+      .getAll(taxPercentage)
+      .then((parts) => {
+        res.status(200).json(parts);
       })
       .catch((error: AppError | Error) => {
         next(error);

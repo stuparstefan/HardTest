@@ -2,44 +2,45 @@ import fs from 'fs';
 import csv from 'csv-parser';
 import { isGTIN } from 'gtin';
 import { AppError } from '../utils/exceptions/AppError';
-
-type Colors = 'white' | 'black' | 'blue' | 'green' | 'red';
-
-interface ComputerPart {
-  id: number;
-  description?: string;
-  brand: string;
-  color?: Colors;
-  basePrice: number;
-  taxPrice: number;
-}
+import { Colors } from '../utils/types/Colors';
+import { computerPartRepository } from '../prisma/repository/computerPartRepository';
+import { mapEntityToContract } from '../utils/mappers/ComputerPartsMapper';
+import { ComputerPart, Prisma } from '@prisma/client';
 
 const NUM_OF_COLUMNS = 5;
-
 class DataService {
-  public async uploadFile(fileName: string, taxPercentage: number) {
+  public async uploadFile(fileName: string) {
     const parts: ComputerPart[] = [];
     let index = 0;
 
-    return await new Promise<ComputerPart[]>((resolve, reject) => {
+    await new Promise<ComputerPart[]>((resolve, reject) => {
       fs.createReadStream(fileName)
         .pipe(csv())
         .on('data', (fileRow) => {
-          const part = this.createComputerPart(fileRow, taxPercentage, ++index);
-          parts.push(part);
+          parts.push(this.createComputerPart(fileRow, ++index));
         })
         .on('end', () => {
           fs.unlinkSync(fileName);
           resolve(parts);
         });
     });
+    return await computerPartRepository.insert(parts);
   }
 
-  private createComputerPart(
-    fileRow: any,
-    taxPercentage: number,
-    index: number,
-  ): ComputerPart {
+  public async getAll(taxPercentage: number) {
+    const data = await computerPartRepository.get();
+    return data.map((computerPartEntity) => {
+      return {
+        ...mapEntityToContract(computerPartEntity),
+        taxPrice: this.calculateTaxPrice(
+          Number(computerPartEntity.price),
+          taxPercentage,
+        ),
+      };
+    });
+  }
+
+  private createComputerPart(fileRow: any, index: number): ComputerPart {
     if (
       Object.keys(fileRow).length != 5 ||
       !fileRow.id ||
@@ -74,15 +75,12 @@ class DataService {
       });
     }
 
-    const basePrice = Number(fileRow.price);
-
     return {
-      id: Number(fileRow.id),
+      id: fileRow.id,
       description: fileRow.description,
       brand: fileRow.brand,
-      color: fileRow.color as Colors,
-      basePrice,
-      taxPrice: this.calculateTaxPrice(basePrice, taxPercentage),
+      color: fileRow.color,
+      price: new Prisma.Decimal(fileRow.price),
     } as ComputerPart;
   }
 

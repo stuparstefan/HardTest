@@ -1,13 +1,14 @@
 <div class="computer-parts__container">
   <div class="actions">
     <input class="actions__choose" type="file" (change)="onChange($event)" />
+    <button (click)="onUpload()">Upload</button>
     <input
       type="number"
       [(ngModel)]="taxPercentage"
       min="0"
       (ngModelChange)="validateTaxInput()"
     />
-    <button (click)="onUpload()">Upload</button>
+    <button (click)="getParts()">Calculate tax</button>
   </div>
 
   <div class="table" *ngIf="parts.length">
