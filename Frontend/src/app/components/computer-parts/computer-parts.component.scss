@@ -5,8 +5,13 @@
   text-align: center;
 }
 
-.upload {
-  margin: 40px;
+.actions {
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: fit-content;
+  gap: 10px;
 }
 
 .table {

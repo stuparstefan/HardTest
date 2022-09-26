@@ -5,6 +5,8 @@ import { AppError } from '../../utils/exceptions/AppError';
 class DataController {
   public uploadFile(req: Request, res: Response, next: NextFunction) {
     const filePath = req.file?.path || '';
+    const taxPercentage = req.body?.taxPercentage || 0;
+
     if (!filePath) {
       next(
         new AppError({ description: 'File is not uploaded.', httpCode: 400 }),
@@ -12,7 +14,7 @@ class DataController {
       return;
     }
     dataService
-      .uploadFile(filePath)
+      .uploadFile(filePath, taxPercentage)
       .then((data) => {
         res.status(200).json(data);
       })
