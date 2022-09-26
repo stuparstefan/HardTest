@@ -11,12 +11,13 @@ interface ComputerPart {
   brand: string;
   color?: Colors;
   basePrice: number;
+  taxPrice: number;
 }
 
 const NUM_OF_COLUMNS = 5;
 
 class DataService {
-  public async uploadFile(fileName: string) {
+  public async uploadFile(fileName: string, taxPercentage: number) {
     const parts: ComputerPart[] = [];
     let index = 0;
 
@@ -24,7 +25,7 @@ class DataService {
       fs.createReadStream(fileName)
         .pipe(csv())
         .on('data', (fileRow) => {
-          const part = this.createComputerPart(fileRow, ++index);
+          const part = this.createComputerPart(fileRow, taxPercentage, ++index);
           parts.push(part);
         })
         .on('end', () => {
@@ -34,7 +35,11 @@ class DataService {
     });
   }
 
-  private createComputerPart(fileRow: any, index: number): ComputerPart {
+  private createComputerPart(
+    fileRow: any,
+    taxPercentage: number,
+    index: number,
+  ): ComputerPart {
     if (
       Object.keys(fileRow).length != 5 ||
       !fileRow.id ||
@@ -68,13 +73,25 @@ class DataService {
         httpCode: 400,
       });
     }
+
+    const basePrice = Number(fileRow.price);
+
     return {
       id: Number(fileRow.id),
       description: fileRow.description,
       brand: fileRow.brand,
       color: fileRow.color as Colors,
-      basePrice: Number(fileRow.price),
+      basePrice,
+      taxPrice: this.calculateTaxPrice(basePrice, taxPercentage),
     } as ComputerPart;
+  }
+
+  private calculateTaxPrice(basePrice: number, taxPercentage: number): number {
+    return Number(
+      (basePrice += taxPercentage
+        ? (basePrice * taxPercentage) / 100
+        : 0).toFixed(2),
+    );
   }
 
   private isColor(value: string): value is Colors {
