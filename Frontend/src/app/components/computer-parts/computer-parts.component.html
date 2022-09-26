@@ -1,0 +1,27 @@
+<div class="computer-parts__container">
+  <div class="upload">
+    <input
+      class="upload__form-control"
+      type="file"
+      (change)="onChange($event)"
+    />
+    <button (click)="onUpload()">Upload</button>
+  </div>
+
+  <div class="table" *ngIf="parts.length">
+    <div class="header">
+      <span class="header__box">Id</span>
+      <span class="header__box">Description</span>
+      <span class="header__box">Brand</span>
+      <span class="header__box">Color</span>
+      <span class="header__box">Price</span>
+    </div>
+    <div class="content" *ngFor="let part of parts">
+      <span class="content__box">{{ part.id }}</span>
+      <span class="content__box">{{ part.description }}</span>
+      <span class="content__box">{{ part.brand }}</span>
+      <span class="content__box">{{ part.color }}</span>
+      <span class="content__box">{{ part.basePrice }}</span>
+    </div>
+  </div>
+</div>
