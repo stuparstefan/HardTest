@@ -3,12 +3,15 @@ import { DataService } from 'src/app/services/data.service';
 
 type Colors = 'white' | 'black' | 'blue' | 'green' | 'red';
 
+const DEFAULT_TAX_PERCENTAGE = 23.5;
+
 interface ComputerPart {
   id: number;
   description?: string;
   brand: string;
   color?: Colors;
   basePrice: number;
+  taxPrice: number;
 }
 
 @Component({
@@ -19,18 +22,25 @@ interface ComputerPart {
 export class ComputerPartsComponent implements OnInit {
   file: File | null = null;
   parts: ComputerPart[] = [];
+  taxPercentage: number = DEFAULT_TAX_PERCENTAGE;
 
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {}
+
+  validateTaxInput() {
+    this.taxPercentage = this.taxPercentage > 0 ? this.taxPercentage : 0;
+  }
 
   onChange(event: any) {
     this.file = event.target.files[0];
   }
 
   onUpload() {
-    this.dataService.uploadFile(this.file).subscribe((event: any) => {
-      this.parts = event;
-    });
+    this.dataService
+      .uploadFile(this.file, this.taxPercentage)
+      .subscribe((event: any) => {
+        this.parts = event;
+      });
   }
 }

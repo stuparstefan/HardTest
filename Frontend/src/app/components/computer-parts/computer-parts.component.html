@@ -1,9 +1,11 @@
 <div class="computer-parts__container">
-  <div class="upload">
+  <div class="actions">
+    <input class="actions__choose" type="file" (change)="onChange($event)" />
     <input
-      class="upload__form-control"
-      type="file"
-      (change)="onChange($event)"
+      type="number"
+      [(ngModel)]="taxPercentage"
+      min="0"
+      (ngModelChange)="validateTaxInput()"
     />
     <button (click)="onUpload()">Upload</button>
   </div>
@@ -15,6 +17,7 @@
       <span class="header__box">Brand</span>
       <span class="header__box">Color</span>
       <span class="header__box">Price</span>
+      <span class="header__box">Price with tax</span>
     </div>
     <div class="content" *ngFor="let part of parts">
       <span class="content__box">{{ part.id }}</span>
@@ -22,6 +25,7 @@
       <span class="content__box">{{ part.brand }}</span>
       <span class="content__box">{{ part.color }}</span>
       <span class="content__box">{{ part.basePrice }}</span>
+      <span class="content__box">{{ part.taxPrice }}</span>
     </div>
   </div>
 </div>
