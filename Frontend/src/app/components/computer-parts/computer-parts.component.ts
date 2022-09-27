@@ -26,7 +26,9 @@ export class ComputerPartsComponent implements OnInit {
 
   constructor(private dataService: DataService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getParts();
+  }
 
   validateTaxInput() {
     this.taxPercentage = this.taxPercentage > 0 ? this.taxPercentage : 0;
@@ -37,10 +39,12 @@ export class ComputerPartsComponent implements OnInit {
   }
 
   onUpload() {
-    this.dataService
-      .uploadFile(this.file, this.taxPercentage)
-      .subscribe((event: any) => {
-        this.parts = event;
-      });
+    this.dataService.uploadFile(this.file);
+  }
+
+  getParts() {
+    this.dataService.get(this.taxPercentage).subscribe((response: any) => {
+      this.parts = response;
+    });
   }
 }
